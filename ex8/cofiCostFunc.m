@@ -40,8 +40,16 @@ Theta_grad = zeros(size(Theta));
 %                     partial derivatives w.r.t. to each element of Theta
 %
 
+%calculate cost function
+
 J = sum (sum( R .* (X * Theta' - Y).^2 )/2 );
 
+cost_reg1 =  sum(sum(Theta.^2)) * (lambda/2);
+cost_reg2 =  sum(sum(X.^2))  * (lambda/2);
+
+J = J + cost_reg1 + cost_reg2;
+
+%calculate gradients - find X (features) parameters and Theta parameters
 
 for i = 1:num_movies
     idx = find(R(i,:)==1); %lookup by current movie i
@@ -51,7 +59,7 @@ for i = 1:num_movies
     X_grad(i, :) = (X(i, :) * Theta_temp' - Y_temp) * Theta_temp + lambda*X(i,:);
 end
 
-
+%X_grad = ((((X*Theta').*R)-Y)*Theta) + lambda*X; %vectorized
 
 for j = 1:num_users
     idx = find(R(:,j)==1); %lookup by current user j
@@ -61,12 +69,9 @@ for j = 1:num_users
     Theta_grad(j, :) = ((X_temp * (Theta(j,:))' - Y_temp))' * X_temp + lambda*Theta(j,:);
 end
 
-
-cost_reg1 =  sum(sum(Theta.^2)) * (lambda/2);
-cost_reg2 =  sum(sum(X.^2))  * (lambda/2);
+%Theta_grad = ((((X*Theta').*R)-Y)'*X)  + lambda*Theta; %vectorized
 
 
-J = J + cost_reg1 + cost_reg2;
 
 
 
