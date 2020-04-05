@@ -40,11 +40,33 @@ Theta_grad = zeros(size(Theta));
 %                     partial derivatives w.r.t. to each element of Theta
 %
 
+J = sum (sum( R .* (X * Theta' - Y).^2 )/2 );
+
+
+for i = 1:num_movies
+    idx = find(R(i,:)==1); %lookup by current movie i
+    Theta_temp = Theta(idx,:); %filter by only users who rated current movie i
+    Y_temp = Y(i,idx); %filter by only users who rated current movie i
+    
+    X_grad(i, :) = (X(i, :) * Theta_temp' - Y_temp) * Theta_temp + lambda*X(i,:);
+end
 
 
 
+for j = 1:num_users
+    idx = find(R(:,j)==1); %lookup by current user j
+    X_temp = X(idx,:); %filter by only movie rated by current user
+    Y_temp = Y(idx,j); % filter by only movies rated by current user
+
+    Theta_grad(j, :) = ((X_temp * (Theta(j,:))' - Y_temp))' * X_temp + lambda*Theta(j,:);
+end
 
 
+cost_reg1 =  sum(sum(Theta.^2)) * (lambda/2);
+cost_reg2 =  sum(sum(X.^2))  * (lambda/2);
+
+
+J = J + cost_reg1 + cost_reg2;
 
 
 
